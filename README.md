@@ -13,7 +13,7 @@ This system follows a **microkernel architecture** where core functionality is p
 
 ### Available Plugins
 1. **UserManagement** - CRUD operations for library users
-2. **BookManagement** - CRUD operations for books catalog  
+2. **BookManagement** - CRUD operations for book catalog  
 3. **LoanManagement** - Handle book loans and returns
 4. **ReportManagement** - Generate reports of borrowed books
 
@@ -23,50 +23,74 @@ This system follows a **microkernel architecture** where core functionality is p
 - **JavaFX 17** for rich desktop UI
 - **Maven** for build management and dependency resolution
 - **MariaDB** via JDBC for data persistence
+- **Docker** for database containerization
 - **Microkernel Pattern** for modular, extensible architecture
 
 ## 📋 Requirements
 
 - Java 17 or higher
 - Maven 3.6+
-- MariaDB database
-- Docker (for database setup)
+- Docker and Docker Compose
+- MariaDB (via provided Docker container)
 
-## 🚀 Quick Start
+## 🚀 Quick Start Guide
 
-### 1. Clone the repository
+### 1. Setup Database (Docker)
+
 ```bash
-git clone <repository-url>
-cd microkernel
-```
+# Navigate to Docker directory
+cd "Docker-T2/docker-T2"
 
-### 2. Setup Database (Docker)
-```bash
-# Start MariaDB container (if provided)
+# Start MariaDB container
 docker-compose up -d
+
+# Verify container is running
+docker ps | findstr bookstore
 ```
 
-### 3. Build and Run
-```bash
-# Build all modules
-mvn clean install
+### 2. Build and Run
 
-# Run the application
+```bash
+# Navigate to project
+cd microkernel
+
+# Compile, package and run in one command
+mvn clean compile package exec:java -pl app
+```
+
+**OR use simplified command:**
+
+```bash
+# If already compiled before
 mvn exec:java -pl app
 ```
+
+### 3. Verification
+
+When running, you should see:
+- ✅ `Starting Bookstore Management System...`
+- ✅ `Database connection: OK`
+- ✅ `UserManagement plugin loaded successfully!`
+- ✅ `BookManagement plugin loaded successfully!`
+- ✅ `LoanManagement plugin loaded successfully!`
+- ✅ `ReportManagement plugin loaded successfully!`
 
 ## 📁 Project Structure
 
 ```
 microkernel/
-├── pom.xml                 # Parent POM
-├── interfaces/             # Core interfaces and models
-├── app/                    # Main application (microkernel)
-└── plugins/                # Plugin modules
-    ├── usermanagement/     # User CRUD plugin
-    ├── bookmanagement/     # Book CRUD plugin
-    ├── loanmanagement/     # Loan management plugin
-    └── reports/            # Reports plugin
+├── pom.xml                      # Parent POM
+├── README.md                    # This documentation
+├── interfaces/                  # Core interfaces and contracts
+│   └── src/main/java/br/edu/ifba/inf008/interfaces/
+├── app/                         # Main application (microkernel)
+│   └── src/main/java/br/edu/ifba/inf008/
+└── plugins/                     # Plugin modules
+    ├── usermanagement/          # User CRUD plugin
+    ├── bookmanagement/          # Book CRUD plugin
+    ├── loanmanagement/          # Loan management plugin
+    ├── reports/                 # Reports plugin
+    └── myplugin/               # Example plugin
 ```
 
 ## 🔌 Plugin Architecture
@@ -82,8 +106,9 @@ Each plugin is an independent module that:
 1. Create new module in `plugins/` directory
 2. Implement `IPlugin` interface
 3. Add module to parent `pom.xml`
-4. Place compiled JAR in `plugins/` directory
-5. Restart application - plugin loads automatically
+4. Compile: `mvn clean package`
+5. JARs are automatically made available
+6. Restart application - plugin loads automatically
 
 ## 🧪 Features
 
@@ -91,44 +116,65 @@ Each plugin is an independent module that:
 - ✅ Add, edit, delete users
 - ✅ Search and filter capabilities
 - ✅ User profile management
+- ✅ Unique email validation
 
 ### Book Management  
-- ✅ Complete book catalog management
+- ✅ Complete catalog management
 - ✅ ISBN validation and duplicate checking
 - ✅ Copy availability tracking
+- ✅ Inventory control
 
 ### Loan Management
 - ✅ Issue and return books
 - ✅ Automatic availability updates
-- ✅ Overdue calculation and tracking
+- ✅ Availability verification before loan
 - ✅ Active loans filtering
 
 ### Reports
 - ✅ Currently borrowed books report
-- ✅ Overdue statistics
-- ✅ Export capabilities
+- ✅ Detailed information (user, book, date)
+- ✅ Intuitive and responsive interface
 
 ## 🏛️ Database Schema
 
-The system expects the following tables:
-- `users` (user_id, name, email, registration_date)
+The system uses the following tables:
+- `users` (user_id, name, email, phone, address, active, created_at)
 - `books` (book_id, title, author, isbn, published_year, copies_available)
 - `loans` (loan_id, user_id, book_id, loan_date, return_date)
 
+**Database Configuration:**
+- **Host**: localhost:3307
+- **Database**: bookstore
+- **User**: root
+- **Password**: root
+
 ## 🧑‍💻 Development
 
-### Building Individual Plugins
+### Individual Plugin Compilation
 ```bash
 # Build specific plugin
-mvn clean install -pl plugins/usermanagement
+mvn clean package -pl plugins/usermanagement
 
 # Build all plugins
-mvn clean install
+mvn clean package
 ```
 
-### Running Tests
+### Command Structure
 ```bash
-mvn test
+# Clean build
+mvn clean
+
+# Compilation
+mvn compile
+
+# Packaging
+mvn package
+
+# Execution
+mvn exec:java -pl app
+
+# All in one command
+mvn clean compile package exec:java -pl app
 ```
 
 ## 📚 Academic Context
@@ -138,18 +184,57 @@ This project was developed as part of the Object-Oriented Programming course (IN
 - Modular architecture patterns
 - Plugin-based extensibility
 - JavaFX desktop application development
-- Database integration with JDBC
+- Database integration via JDBC
 
 ## 🎯 Course Requirements Fulfilled
 
-- ✅ User management (CRUD)
-- ✅ Book management (CRUD) 
-- ✅ Loan management with availability control
-- ✅ Borrowed books reporting
-- ✅ Plugin-based modular architecture
-- ✅ JavaFX graphical interface
-- ✅ MariaDB database integration
-- ✅ Maven build system
+- ✅ **User Management** - Complete CRUD
+- ✅ **Book Management** - Complete CRUD with validations
+- ✅ **Loan Management** - With availability control
+- ✅ **Borrowed Books Report** - As per specification
+- ✅ **Plugin System** - Modular architecture with dynamic loading
+- ✅ **JavaFX Interface** - Rich and responsive graphical interface
+- ✅ **MariaDB Integration** - Persistence via JDBC
+- ✅ **Maven Build System** - Automated compilation and execution
+
+## ⚙️ Technical Configurations
+
+### Main Dependencies
+- JavaFX Controls 17.0.2
+- MariaDB Connector/J 3.1.4
+- SLF4J for logging
+
+### Maven Plugins
+- Compiler Plugin 3.13.0
+- Exec Plugin 3.0.0
+- JavaFX Plugin 0.0.8
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**Database connection fails:**
+```bash
+# Check if Docker is running
+docker ps
+
+# Restart container if needed
+docker-compose restart
+```
+
+**Plugins don't load:**
+```bash
+# Recompile everything
+mvn clean compile package
+
+# Check generated JARs
+dir plugins\*/target\*.jar
+```
+
+**Interface doesn't open:**
+- Verify Java 17+ is installed
+- Check JavaFX is in dependencies
+- Warning about "unnamed module" is normal
 
 ## 👨‍🎓 Author
 
@@ -158,6 +243,16 @@ Course: Análise e Desenvolvimento de Sistemas
 Subject: INF008 - Programação Orientada a Objetos  
 Professor: Sandro Santos Andrade
 
+## 📅 Assignment Information
+
+- **Deadline**: August 5th, 2025 at 23:59:59
+- **Submission**: sandroandrade@ifba.edu.br
+- **Subject**: INF008 T2 [Full Name]
+
 ## 📄 License
 
 This project is part of academic coursework and is intended for educational purposes.
+
+---
+
+**System tested and working with 4 users, 3 books, and 3 active loans in Docker environment.**
